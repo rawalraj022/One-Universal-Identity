@@ -8,11 +8,6 @@ metadata:
     version: v1
 spec:
   replicas: 3
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
   selector:
     matchLabels:
       app: oui-backend
@@ -24,30 +19,46 @@ spec:
     spec:
       containers:
       - name: oui-backend
-        image: oui-backend:latest
+        image: oui/backend:latest
         ports:
-        - containerPort: 3000
-          name: http
+        - containerPort: 3001
         env:
         - name: NODE_ENV
           value: "production"
         - name: PORT
-          value: "3000"
-        - name: MONGODB_URI
+          value: "3001"
+        - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
               name: oui-secrets
-              key: mongodb-uri
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: oui-secrets
-              key: jwt-secret
+              key: database-url
         - name: REDIS_URL
           valueFrom:
             secretKeyRef:
               name: oui-secrets
               key: redis-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: oui-secrets
+              key: jwt-secret
+        - name: ETHEREUM_RPC_URL
+          valueFrom:
+            secretKeyRef:
+              name: oui-secrets
+              key: ethereum-rpc-url
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "256Mi"
@@ -55,60 +66,48 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: http
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: http
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1001
-          allowPrivilegeEscalation: false
-      securityContext:
-        fsGroup: 1001
-      serviceAccountName: oui-backend-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - oui-backend
+              topologyKey: kubernetes.io/hostname
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: oui-backend
+  name: oui-backend-service
   namespace: oui-production
-  labels:
-    app: oui-backend
 spec:
-  type: ClusterIP
-  ports:
-  - port: 3000
-    targetPort: http
-    protocol: TCP
-    name: http
   selector:
     app: oui-backend
+  ports:
+    - port: 3001
+      targetPort: 3001
+  type: ClusterIP
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: oui-api-ingress
+  name: oui-backend-ingress
   namespace: oui-production
   annotations:
-    kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/rate-limit: "100"
-    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/rewrite-target: /
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: nginx
   tls:
   - hosts:
     - api.oui.com
-    secretName: oui-api-tls
+    secretName: oui-tls
   rules:
   - host: api.oui.com
     http:
@@ -117,6 +116,59 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: oui-backend
+            name: oui-backend-service
             port:
-              number: 3000
+              number: 3001
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: oui-backend-hpa
+  namespace: oui-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: oui-backend
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oui-config
+  namespace: oui-production
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  RATE_LIMIT_WINDOW: "900000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oui-secrets
+  namespace: oui-production
+type: Opaque
+data:
+  database-url: <base64-encoded-database-url>
+  redis-url: <base64-encoded-redis-url>
+  jwt-secret: <base64-encoded-jwt-secret>
+  ethereum-rpc-url: <base64-encoded-ethereum-rpc-url>
+  encryption-key: <base64-encoded-encryption-key>

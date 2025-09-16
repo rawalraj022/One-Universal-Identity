@@ -249,6 +249,65 @@ export class OUIClient {
     }
   }
 
+  // Enhanced functionality with AI and Analytics
+  async analyzeIdentityRisk(): Promise<any> {
+    if (!this.walletInfo?.connected) {
+      throw new Error('Wallet not connected');
+    }
+
+    try {
+      const response = await this.httpClient.post('/ai/analyze-threat', {
+        userId: this.walletInfo.address,
+        behaviorData: {
+          loginPatterns: [{ timestamp: Date.now(), success: true }],
+          deviceInfo: { fingerprint: 'mobile-device' },
+          sessionDuration: 300
+        }
+      });
+
+      return response.data.analysis;
+    } catch (error: any) {
+      throw new Error(`Risk analysis failed: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+
+  // Cross-chain functionality
+  async initiateCrossChainTransfer(
+    dstChainId: number,
+    amount: string,
+    identityId: string
+  ): Promise<any> {
+    if (!this.walletInfo?.connected) {
+      throw new Error('Wallet not connected');
+    }
+
+    try {
+      const response = await this.httpClient.post('/cross-chain/bridge', {
+        userAddress: this.walletInfo.address,
+        dstChainId,
+        identityId,
+        amount
+      });
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Cross-chain transfer failed: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
+  async getTransferStatus(txHash: string, srcChainId: number): Promise<any> {
+    try {
+      const response = await this.httpClient.get(`/cross-chain/status/${txHash}`, {
+        params: { srcChainId }
+      });
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Status check failed: ${error.response?.data?.message || error.message}`);
+    }
+  }
+
   // Utility functions
   async signMessage(message: string): Promise<string> {
     if (!this.walletInfo?.connected) {
@@ -268,6 +327,149 @@ export class OUIClient {
     // This would integrate with the wallet provider's transaction method
     // Implementation depends on the specific wallet provider
     throw new Error('Send transaction not implemented for current wallet provider');
+  }
+
+  // Batch operations
+  async batchOperations(operations: Array<{
+    type: 'identity' | 'uvt' | 'watermark' | 'dao';
+    data: any;
+  }>): Promise<any[]> {
+    const results = [];
+
+    for (const operation of operations) {
+      try {
+        switch (operation.type) {
+          case 'identity':
+            const identityResult = await this.createIdentity(operation.data.did);
+            results.push({ success: true, type: 'identity', result: identityResult });
+            break;
+          case 'uvt':
+            const uvtResult = await this.issueUVT(operation.data.credentialId, operation.data.expiresInDays);
+            results.push({ success: true, type: 'uvt', result: uvtResult });
+            break;
+          case 'watermark':
+            const watermarkResult = await this.watermarkAsset(
+              operation.data.assetId,
+              operation.data.assetType,
+              operation.data.metadata
+            );
+            results.push({ success: true, type: 'watermark', result: watermarkResult });
+            break;
+          case 'dao':
+            const daoResult = await this.createProposal(operation.data.description, operation.data.duration);
+            results.push({ success: true, type: 'dao', result: daoResult });
+            break;
+        }
+      } catch (error: any) {
+        results.push({
+          success: false,
+          type: operation.type,
+          error: error.message
+        });
+      }
+    }
+
+    return results;
+  }
+
+  // Enhanced error handling and retry logic
+  private async retryOperation<T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 3,
+    delay: number = 1000
+  ): Promise<T> {
+    let lastError: any;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error: any) {
+        lastError = error;
+
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, delay * attempt));
+        }
+      }
+    }
+
+    throw lastError;
+  }
+
+  // Health check
+  async healthCheck(): Promise<{
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    services: Record<string, boolean>;
+    timestamp: number;
+  }> {
+    const services = {
+      identity: false,
+      uvt: false,
+      dao: false,
+      watermark: false,
+      ai: false,
+      analytics: false,
+      crossChain: false
+    };
+
+    try {
+      // Test identity service
+      await this.httpClient.get('/identity/health');
+      services.identity = true;
+    } catch {}
+
+    try {
+      // Test UVT service
+      await this.httpClient.get('/identity/uvt/health');
+      services.uvt = true;
+    } catch {}
+
+    try {
+      // Test DAO service
+      await this.httpClient.get('/dao/health');
+      services.dao = true;
+    } catch {}
+
+    try {
+      // Test watermark service
+      await this.httpClient.get('/watermark/health');
+      services.watermark = true;
+    } catch {}
+
+    try {
+      // Test AI service
+      await this.httpClient.get('/ai/health');
+      services.ai = true;
+    } catch {}
+
+    try {
+      // Test analytics service
+      await this.httpClient.get('/analytics/health');
+      services.analytics = true;
+    } catch {}
+
+    try {
+      // Test cross-chain service
+      await this.httpClient.get('/cross-chain/health');
+      services.crossChain = true;
+    } catch {}
+
+    const healthyCount = Object.values(services).filter(Boolean).length;
+    const totalServices = Object.keys(services).length;
+
+    let status: 'healthy' | 'degraded' | 'unhealthy';
+    if (healthyCount === totalServices) {
+      status = 'healthy';
+    } else if (healthyCount >= totalServices / 2) {
+      status = 'degraded';
+    } else {
+      status = 'unhealthy';
+    }
+
+    return {
+      status,
+      services,
+      timestamp: Date.now()
+    };
   }
 
   // Configuration
