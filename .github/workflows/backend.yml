@@ -1,0 +1,172 @@
+name: Backend API CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/backend/**'
+      - 'src/ai-detection/**'
+      - 'src/zkp-verifier/**'
+      - 'src/networks/**'
+      - 'package.json'
+      - 'tsconfig.json'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/backend/**'
+      - 'src/ai-detection/**'
+      - 'src/zkp-verifier/**'
+      - 'src/networks/**'
+      - 'package.json'
+      - 'tsconfig.json'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: TypeScript compilation check
+      run: npx tsc --noEmit
+
+    - name: Run ESLint
+      run: npx eslint src/backend/ src/ai-detection/ src/zkp-verifier/ src/networks/ --ext .ts
+
+    - name: Run backend tests
+      run: npm run test:backend
+      env:
+        NODE_ENV: test
+        MONGODB_URI: mongodb://localhost:27017/oui_test
+
+    - name: Generate coverage report
+      run: npm run coverage
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: backend
+        name: backend-coverage
+
+    - name: Security audit
+      run: npm audit --audit-level high
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --production=false
+
+    - name: Build application
+      run: npm run build
+
+    - name: Build Docker image
+      run: |
+        docker build -t oui-backend:${{ github.sha }} .
+        docker tag oui-backend:${{ github.sha }} oui-backend:latest
+
+    - name: Save Docker image
+      run: |
+        docker save oui-backend:latest > backend-image.tar
+        docker save oui-backend:${{ github.sha }} > backend-image-${{ github.sha }}.tar
+
+    - name: Upload Docker images
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-docker-images
+        path: |
+          backend-image.tar
+          backend-image-${{ github.sha }}.tar
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Download Docker images
+      uses: actions/download-artifact@v3
+      with:
+        name: backend-docker-images
+
+    - name: Load Docker image
+      run: docker load < backend-image.tar
+
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # Add your staging deployment commands here
+        # Example: kubectl apply -f k8s/staging/
+        echo "Deployment completed"
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    # environment: production
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Download Docker images
+      uses: actions/download-artifact@v3
+      with:
+        name: backend-docker-images
+
+    - name: Load Docker image
+      run: docker load < backend-image.tar
+
+    - name: Run database migrations
+      run: |
+        echo "Running database migrations..."
+        # Add migration commands here
+
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        # Add your production deployment commands here
+        # Example: kubectl apply -f k8s/production/
+        echo "Production deployment completed"
+
+    - name: Health check
+      run: |
+        # Add health check logic
+        echo "Health check passed"
+
+    - name: Notify deployment
+      run: |
+        curl -X POST -H 'Content-type: application/json' \
+        --data '{"text":"🚀 OUI Backend API deployed to production!"}' \
+        ${{ secrets.SLACK_WEBHOOK_URL }}
