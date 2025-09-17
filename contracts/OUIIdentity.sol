@@ -10,7 +10,16 @@ contract OUIIdentity {
         bytes32 did;
         uint256 created;
         uint256 updated;
+        uint256 version;
         bool active;
+    }
+
+    struct IdentityVersion {
+        bytes32 did;
+        address owner;
+        uint256 timestamp;
+        uint256 version;
+        string changeType;
     }
 
     struct UniversalVerificationToken {
@@ -24,6 +33,7 @@ contract OUIIdentity {
 
     mapping(address => UniversalIdentity) public identities;
     mapping(bytes32 => UniversalVerificationToken) public uvTokens;
+    mapping(address => IdentityVersion[]) public identityHistory;
 
     event IdentityCreated(address indexed owner, bytes32 did);
     event UVTIssued(bytes32 indexed tokenId, address indexed owner, bytes32 credentialId);
@@ -38,8 +48,19 @@ contract OUIIdentity {
             did: did,
             created: block.timestamp,
             updated: block.timestamp,
+            version: 1,
             active: true
         });
+
+        // Add to history
+        identityHistory[msg.sender].push(IdentityVersion({
+            did: did,
+            owner: msg.sender,
+            timestamp: block.timestamp,
+            version: 1,
+            changeType: "created"
+        }));
+
         emit IdentityCreated(msg.sender, did);
     }
 
@@ -47,8 +68,21 @@ contract OUIIdentity {
     function updateIdentity(bytes32 did) external {
         UniversalIdentity storage identity = identities[msg.sender];
         require(identity.created != 0, "Identity does not exist");
+
+        uint256 newVersion = identity.version + 1;
         identity.did = did;
         identity.updated = block.timestamp;
+        identity.version = newVersion;
+
+        // Add to history
+        identityHistory[msg.sender].push(IdentityVersion({
+            did: did,
+            owner: msg.sender,
+            timestamp: block.timestamp,
+            version: newVersion,
+            changeType: "updated"
+        }));
+
         emit IdentityUpdated(msg.sender, did);
     }
 
@@ -81,5 +115,24 @@ contract OUIIdentity {
     function isUVTValid(bytes32 tokenId) external view returns (bool) {
         UniversalVerificationToken memory token = uvTokens[tokenId];
         return token.valid && block.timestamp < token.expiresAt;
+    }
+
+    /// @notice Get identity version
+    function getIdentityVersion(address owner) external view returns (uint256) {
+        UniversalIdentity memory identity = identities[owner];
+        require(identity.created != 0, "Identity does not exist");
+        return identity.version;
+    }
+
+    /// @notice Get identity history
+    function getIdentityHistory(address owner) external view returns (IdentityVersion[] memory) {
+        return identityHistory[owner];
+    }
+
+    /// @notice Get latest identity version details
+    function getLatestIdentityVersion(address owner) external view returns (IdentityVersion memory) {
+        IdentityVersion[] memory history = identityHistory[owner];
+        require(history.length > 0, "No identity history found");
+        return history[history.length - 1];
     }
 }

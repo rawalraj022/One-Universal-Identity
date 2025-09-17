@@ -29,6 +29,8 @@ const IdentityManagement: React.FC<IdentityManagementProps> = ({ wallet }) => {
         did: `did:ethr:${wallet.address}`,
         status: 'active',
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: 1,
         uvts: []
       });
     } catch (error) {
@@ -55,6 +57,8 @@ const IdentityManagement: React.FC<IdentityManagementProps> = ({ wallet }) => {
         did,
         status: 'active',
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        version: 1,
         uvts: []
       });
 
@@ -81,7 +85,12 @@ const IdentityManagement: React.FC<IdentityManagementProps> = ({ wallet }) => {
       // For now, simulate the update
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      setIdentity({ ...identity, did, updatedAt: new Date().toISOString() });
+      setIdentity({
+        ...identity,
+        did,
+        updatedAt: new Date().toISOString(),
+        version: (identity.version || 1) + 1
+      });
       setMessage('Identity updated successfully!');
     } catch (error) {
       console.error('Update failed:', error);
@@ -139,6 +148,10 @@ const IdentityManagement: React.FC<IdentityManagementProps> = ({ wallet }) => {
                 <span className="value">{new Date(identity.createdAt).toLocaleDateString()}</span>
               </div>
               <div className="info-row">
+                <span className="label">Version:</span>
+                <span className="value">{identity.version}</span>
+              </div>
+              <div className="info-row">
                 <span className="label">UVTs Issued:</span>
                 <span className="value">{identity.uvts?.length || 0}</span>
               </div>
@@ -149,6 +162,28 @@ const IdentityManagement: React.FC<IdentityManagementProps> = ({ wallet }) => {
               <p>Create your universal identity below.</p>
             </div>
           )}
+        </div>
+
+        <div className="identity-card">
+          <h3>Identity History</h3>
+          <div className="history-list">
+            <div className="history-item">
+              <div className="history-version">v1</div>
+              <div className="history-details">
+                <p>Identity created</p>
+                <small>{new Date(identity.createdAt).toLocaleString()}</small>
+              </div>
+            </div>
+            {identity.version > 1 && (
+              <div className="history-item">
+                <div className="history-version">v{identity.version}</div>
+                <div className="history-details">
+                  <p>Identity updated</p>
+                  <small>{new Date(identity.updatedAt).toLocaleString()}</small>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="identity-actions">

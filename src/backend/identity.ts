@@ -33,6 +33,8 @@ router.post('/register', async (req, res) => {
       did,
       owner: req.body.owner || '0x0000000000000000000000000000000000000000',
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      version: 1,
       status: 'active'
     };
 
@@ -82,7 +84,8 @@ router.put('/update', async (req, res) => {
     const updatedIdentity = {
       ...existingIdentity,
       did: newDid,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      version: ((existingIdentity as any).version || 1) + 1
     };
 
     await db.saveIdentity(updatedIdentity);
@@ -258,6 +261,54 @@ router.get('/:did', async (req, res) => {
     console.error('Identity retrieval error:', error);
     res.status(500).json({
       error: 'Failed to retrieve identity',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /identity/history/:owner
+ * Gets identity history for an owner address
+ */
+router.get('/history/:owner', async (req, res) => {
+  try {
+    const { owner } = req.params;
+
+    // Get blockchain service
+    const blockchainService = getBlockchainService();
+    const contract = blockchainService.getContract('ouiIdentity');
+
+    // For now, use mock implementation
+    // In production: const history = await contract.getIdentityHistory(owner);
+
+    // Mock identity history
+    const history = [
+      {
+        did: '0x' + Math.random().toString(16).substr(2, 64),
+        owner: owner,
+        timestamp: Date.now() - (7 * 24 * 60 * 60 * 1000),
+        version: 1,
+        changeType: 'created'
+      },
+      {
+        did: '0x' + Math.random().toString(16).substr(2, 64),
+        owner: owner,
+        timestamp: Date.now() - (2 * 24 * 60 * 60 * 1000),
+        version: 2,
+        changeType: 'updated'
+      }
+    ];
+
+    res.json({
+      owner,
+      history,
+      totalVersions: history.length,
+      retrievedAt: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error('Identity history error:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve identity history',
       details: error.message
     });
   }
