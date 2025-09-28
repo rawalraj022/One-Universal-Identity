@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 /// @title OUI Compliance Module
 /// @notice KYC/AML compliance system with regulatory reporting
@@ -264,15 +264,15 @@ contract ComplianceModule is Initializable, AccessControlUpgradeable, PausableUp
         string memory purpose,
         RiskLevel riskAssessment
     ) {
-        Transaction memory tx = transactions[txHash];
+        Transaction memory transaction = transactions[txHash];
         return (
-            tx.from,
-            tx.to,
-            tx.amount,
-            tx.timestamp,
-            tx.currency,
-            tx.purpose,
-            tx.riskAssessment
+            transaction.from,
+            transaction.to,
+            transaction.amount,
+            transaction.timestamp,
+            transaction.currency,
+            transaction.purpose,
+            transaction.riskAssessment
         );
     }
 

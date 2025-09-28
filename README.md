@@ -5,11 +5,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
 
-> A comprehensive decentralized identity system built on blockchain technology with AI-powered security, cross-chain interoperability, and mobile-first design.
+> A blockchain-based identity system prototype with AI threat detection simulation, cross-chain interoperability planning, and mobile SDK foundation.
 
 ## 🌟 Overview
 
-One Universal Identity (OUI) is a complete blockchain-powered identity management system that provides self-sovereign digital identity, privacy-preserving verification, and seamless cross-chain interoperability. The system combines smart contracts, AI-driven security, and user-friendly interfaces to deliver a production-ready identity solution.
+One Universal Identity (OUI) is a prototype blockchain-based identity management system that demonstrates the concept of self-sovereign digital identity with simulated AI security features. The current implementation includes basic smart contracts, mock AI services, and a RESTful API backend as a foundation for future development.
 
 ## ✨ Key Features
 

@@ -1,10 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import identityRouter from '../../src/backend/identity';
-
-// Mock the blockchain and database services
-jest.mock('../../src/utils/blockchain');
-jest.mock('../../src/utils/database');
+import { expect } from 'chai';
 
 describe('Version Control API Tests', () => {
   let app: express.Application;
@@ -24,9 +21,9 @@ describe('Version Control API Tests', () => {
           owner: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
         });
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.identity.version).toBe(1);
+      expect(response.status).to.equal(200);
+      expect(response.body.success).to.equal(true);
+      expect(response.body.identity.version).to.equal(1);
     });
   });
 
@@ -48,9 +45,9 @@ describe('Version Control API Tests', () => {
           newDid: 'did:ethr:0x1234567890fedcba'
         });
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.identity.version).toBe(2);
+      expect(response.status).to.equal(200);
+      expect(response.body.success).to.equal(true);
+      expect(response.body.identity.version).to.equal(2);
     });
   });
 
@@ -59,16 +56,16 @@ describe('Version Control API Tests', () => {
       const response = await request(app)
         .get('/api/identity/history/0x742d35Cc6634C0532925a3b844Bc454e4438f44e');
 
-      expect(response.status).toBe(200);
-      expect(response.body.history).toBeDefined();
-      expect(Array.isArray(response.body.history)).toBe(true);
-      expect(response.body.history.length).toBeGreaterThan(0);
+      expect(response.status).to.equal(200);
+      expect(response.body.history).to.exist;
+      expect(Array.isArray(response.body.history)).to.equal(true);
+      expect(response.body.history.length).to.be.greaterThan(0);
 
       // Check that each history item has version
       response.body.history.forEach((item: any) => {
-        expect(item.version).toBeDefined();
-        expect(typeof item.version).toBe('number');
-        expect(item.changeType).toBeDefined();
+        expect(item.version).to.exist;
+        expect(typeof item.version).to.equal('number');
+        expect(item.changeType).to.exist;
       });
     });
   });

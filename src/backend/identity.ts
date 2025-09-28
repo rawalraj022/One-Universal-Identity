@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
 
     // Get blockchain service
     const blockchainService = getBlockchainService();
-    const contract = blockchainService.getContract('ouiIdentity');
+    const contract = blockchainService.getContract('OUIIdentity');
 
     // For now, use mock implementation since contracts aren't deployed
     // In production: const tx = await contract.createIdentity(did);
@@ -68,7 +68,7 @@ router.put('/update', async (req, res) => {
 
     // Get blockchain service
     const blockchainService = getBlockchainService();
-    const contract = blockchainService.getContract('ouiIdentity');
+    const contract = blockchainService.getContract('OUIIdentity');
 
     // For now, use mock implementation
     // In production: const tx = await contract.updateIdentity(newDid);
@@ -118,7 +118,7 @@ router.post('/issue-uvt', async (req, res) => {
 
     // Get blockchain service
     const blockchainService = getBlockchainService();
-    const contract = blockchainService.getContract('ouiIdentity');
+    const contract = blockchainService.getContract('OUIIdentity');
 
     // Generate token ID (in production, this would come from contract)
     const tokenId = ethers.keccak256(
@@ -168,7 +168,7 @@ router.get('/uvt/:tokenId', async (req, res) => {
 
     // Get blockchain service
     const blockchainService = getBlockchainService();
-    const contract = blockchainService.getContract('ouiIdentity');
+    const contract = blockchainService.getContract('OUIIdentity');
 
     // For now, use mock implementation
     // In production: const isValid = await contract.isUVTValid(tokenId);
@@ -276,7 +276,7 @@ router.get('/history/:owner', async (req, res) => {
 
     // Get blockchain service
     const blockchainService = getBlockchainService();
-    const contract = blockchainService.getContract('ouiIdentity');
+    const contract = blockchainService.getContract('OUIIdentity');
 
     // For now, use mock implementation
     // In production: const history = await contract.getIdentityHistory(owner);

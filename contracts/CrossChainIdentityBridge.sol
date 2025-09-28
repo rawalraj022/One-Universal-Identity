@@ -3,11 +3,38 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
 /// @title Cross-Chain Identity Bridge for OUI
 /// @notice Enables cross-chain identity and UVT transfers using LayerZero protocol
+
+// LayerZero interface (simplified)
+interface ILayerZeroEndpoint {
+    function send(
+        uint16 _dstChainId,
+        bytes calldata _destination,
+        bytes calldata _payload,
+        address payable _refundAddress,
+        address _zroPaymentAddress,
+        bytes calldata _adapterParams
+    ) external payable;
+
+    function estimateFees(
+        uint16 _dstChainId,
+        address _userApplication,
+        bytes calldata _payload,
+        bool _payInZRO,
+        bytes calldata _adapterParams
+    ) external view returns (uint256);
+
+    function lzReceive(
+        uint16 _srcChainId,
+        bytes calldata _srcAddress,
+        uint64 _nonce,
+        bytes calldata _payload
+    ) external;
+}
 
 contract CrossChainIdentityBridge is Initializable, OwnableUpgradeable, ReentrancyGuardUpgradeable, PausableUpgradeable {
     // LayerZero interfaces (simplified)
@@ -64,12 +91,13 @@ contract CrossChainIdentityBridge is Initializable, OwnableUpgradeable, Reentran
     }
 
     function initialize(
+        address admin,
         address _lzEndpoint,
         uint256 _bridgeFee,
         uint256 _maxBridgeAmount,
         uint256 _minBridgeAmount
     ) public initializer {
-        __Ownable_init();
+        __Ownable_init(admin);
         __ReentrancyGuard_init();
         __Pausable_init();
 
@@ -121,7 +149,7 @@ contract CrossChainIdentityBridge is Initializable, OwnableUpgradeable, Reentran
         bytes calldata _srcAddress,
         uint64 _nonce,
         bytes calldata _payload
-    ) external override whenNotPaused {
+    ) external whenNotPaused {
         require(msg.sender == address(lzEndpoint), "Only LayerZero endpoint");
         require(
             _srcAddress.length == trustedRemoteAddresses[_srcChainId].length &&
@@ -245,33 +273,6 @@ contract CrossChainIdentityBridge is Initializable, OwnableUpgradeable, Reentran
         uint256 balance = address(this).balance;
         require(balance > 0, "No fees to withdraw");
         payable(owner()).transfer(balance);
-    }
-
-    // LayerZero interface (simplified)
-    interface ILayerZeroEndpoint {
-        function send(
-            uint16 _dstChainId,
-            bytes calldata _destination,
-            bytes calldata _payload,
-            address payable _refundAddress,
-            address _zroPaymentAddress,
-            bytes calldata _adapterParams
-        ) external payable;
-
-        function estimateFees(
-            uint16 _dstChainId,
-            address _userApplication,
-            bytes calldata _payload,
-            bool _payInZRO,
-            bytes calldata _adapterParams
-        ) external view returns (uint256);
-
-        function lzReceive(
-            uint16 _srcChainId,
-            bytes calldata _srcAddress,
-            uint64 _nonce,
-            bytes calldata _payload
-        ) external;
     }
 
     // Reserved storage space for future upgrades

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 
 /// @title Proxy Contract for OUIIdentity Upgradeable
 /// @notice Transparent proxy for OUIIdentity contract upgrades
@@ -12,11 +13,11 @@ contract OUIIdentityProxy is ERC1967Proxy {
         address admin_,
         bytes memory _data
     ) ERC1967Proxy(_logic, _data) {
-        _changeAdmin(admin_);
+        ERC1967Utils.changeAdmin(admin_);
     }
 
     modifier ifAdmin() {
-        if (msg.sender == _getAdmin()) {
+        if (msg.sender == ERC1967Utils.getAdmin()) {
             _;
         } else {
             _fallback();
@@ -24,26 +25,26 @@ contract OUIIdentityProxy is ERC1967Proxy {
     }
 
     function admin() external ifAdmin returns (address) {
-        return _getAdmin();
+        return ERC1967Utils.getAdmin();
     }
 
     function implementation() external ifAdmin returns (address) {
-        return _getImplementation();
+        return ERC1967Utils.getImplementation();
     }
 
     function changeAdmin(address newAdmin) external ifAdmin {
-        _changeAdmin(newAdmin);
+        ERC1967Utils.changeAdmin(newAdmin);
     }
 
     function upgradeTo(address newImplementation) external ifAdmin {
-        _upgradeTo(newImplementation);
+        ERC1967Utils.upgradeToAndCall(newImplementation, "");
     }
 
     function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
-        _upgradeToAndCall(newImplementation, data, true);
+        ERC1967Utils.upgradeToAndCall(newImplementation, data);
     }
 
-    receive() external payable override {
+    receive() external payable {
         _fallback();
     }
 }

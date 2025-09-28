@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 /// @title Advanced ZKP Verifier for OUI
 /// @notice Supports range proofs, set membership proofs, and signature aggregation
@@ -28,9 +28,9 @@ contract AdvancedZKPVerifier is Initializable, OwnableUpgradeable, ReentrancyGua
         uint256[2] a;
         uint256[2][2] b;
         uint256[2] c;
-        uint256 root;
+        bytes32 root;
         uint256 nullifier;
-        uint256[8] pathElements;
+        bytes32[8] pathElements;
         uint256[8] pathIndices;
     }
 
@@ -69,8 +69,8 @@ contract AdvancedZKPVerifier is Initializable, OwnableUpgradeable, ReentrancyGua
         _disableInitializers();
     }
 
-    function initialize() public initializer {
-        __Ownable_init();
+    function initialize(address admin) public initializer {
+        __Ownable_init(admin);
         __ReentrancyGuard_init();
 
         // Enable basic proof types by default
@@ -160,7 +160,7 @@ contract AdvancedZKPVerifier is Initializable, OwnableUpgradeable, ReentrancyGua
             block.timestamp
         ));
 
-        bytes32 publicInputsHash = keccak256(abi.encodePacked(expectedRoot, proof.nullifier));
+        bytes32 publicInputsHash = keccak256(abi.encodePacked(bytes32(expectedRoot), proof.nullifier));
 
         verificationRequests[requestId] = VerificationRequest({
             requestId: requestId,
@@ -175,7 +175,7 @@ contract AdvancedZKPVerifier is Initializable, OwnableUpgradeable, ReentrancyGua
         emit VerificationRequested(requestId, msg.sender, ProofType.SET_MEMBERSHIP_PROOF);
 
         // Verify the proof immediately
-        bool success = verifySetMembershipProof(proof, expectedRoot);
+        bool success = verifySetMembershipProof(proof, bytes32(expectedRoot));
         _fulfillVerification(requestId, success);
 
         return requestId;
@@ -206,13 +206,13 @@ contract AdvancedZKPVerifier is Initializable, OwnableUpgradeable, ReentrancyGua
     /// @notice Verify a set membership proof
     function verifySetMembershipProof(
         SetMembershipProof memory proof,
-        uint256 expectedRoot
+        bytes32 expectedRoot
     ) internal view returns (bool) {
         // Simplified verification - in practice, this would use Merkle tree verification
         // This is a placeholder implementation
 
         // Verify Merkle proof
-        uint256 computedRoot = proof.root;
+        bytes32 computedRoot = proof.root;
 
         for (uint256 i = 0; i < proof.pathElements.length; i++) {
             if (proof.pathIndices[i] == 0) {

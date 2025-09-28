@@ -29,7 +29,7 @@ const WATERMARK_ABI = [
 
 // Contract addresses (would be loaded from deployment files in production)
 const CONTRACT_ADDRESSES = {
-  ouiIdentity: process.env.OUI_IDENTITY_ADDRESS || '0x0000000000000000000000000000000000000000',
+  OUIIdentity: process.env.OUI_IDENTITY_ADDRESS || '0x0000000000000000000000000000000000000000',
   uvtToken: process.env.UVT_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000000',
   dao: process.env.DAO_ADDRESS || '0x0000000000000000000000000000000000000000',
   watermark: process.env.WATERMARK_ADDRESS || '0x0000000000000000000000000000000000000000',
@@ -71,7 +71,7 @@ class BlockchainService {
     const contractSigner = this.signer || this.provider;
 
     this.contracts = {
-      ouiIdentity: new ethers.Contract(CONTRACT_ADDRESSES.ouiIdentity, OUI_IDENTITY_ABI, contractSigner),
+      OUIIdentity: new ethers.Contract(CONTRACT_ADDRESSES.OUIIdentity, OUI_IDENTITY_ABI, contractSigner),
       uvtToken: new ethers.Contract(CONTRACT_ADDRESSES.uvtToken, UVT_TOKEN_ABI, contractSigner),
       dao: new ethers.Contract(CONTRACT_ADDRESSES.dao, DAO_ABI, contractSigner),
       watermark: new ethers.Contract(CONTRACT_ADDRESSES.watermark, WATERMARK_ABI, contractSigner)

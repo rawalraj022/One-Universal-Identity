@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 /// @title Upgradeable One Universal Identity (OUI) & Universal Verification Token (UVT)
 /// @notice Upgradeable version of OUIIdentity with advanced features
@@ -43,7 +43,9 @@ contract OUIIdentityUpgradeable is Initializable, UUPSUpgradeable, OwnableUpgrad
 
     // Events
     event IdentityCreated(address indexed owner, bytes32 did, uint256 reputationScore);
+    event IdentityUpdated(address indexed owner, bytes32 did);
     event UVTIssued(bytes32 indexed tokenId, address indexed owner, bytes32 credentialId, string tokenType);
+    event UVTRevoked(bytes32 indexed tokenId);
     event ReputationUpdated(address indexed identity, uint256 newScore);
     event EmergencyAction(address indexed admin, string action);
 
@@ -53,10 +55,11 @@ contract OUIIdentityUpgradeable is Initializable, UUPSUpgradeable, OwnableUpgrad
     }
 
     function initialize(
+        address admin,
         uint256 _minReputationScore,
         uint256 _maxUVTsPerIdentity
     ) public initializer {
-        __Ownable_init();
+        __Ownable_init(admin);
         __Pausable_init();
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();

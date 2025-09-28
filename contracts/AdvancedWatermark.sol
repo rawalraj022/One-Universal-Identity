@@ -3,14 +3,14 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title Advanced Digital Asset Watermarking for OUI
 /// @notice Enhanced watermarking with metadata validation, digital signatures, and multi-format support
 
 contract AdvancedWatermark is Initializable, OwnableUpgradeable, PausableUpgradeable {
-    using ECDSAUpgradeable for bytes32;
+    using ECDSA for bytes32;
 
     enum AssetFormat {
         IMAGE,
@@ -69,10 +69,9 @@ contract AdvancedWatermark is Initializable, OwnableUpgradeable, PausableUpgrade
     }
 
     function initialize(address admin) public initializer {
-        __Ownable_init();
+        __Ownable_init(admin);
         __Pausable_init();
 
-        _transferOwnership(admin);
         authorizedValidators[admin] = true;
         watermarkingFee = 0.001 ether;
         validationFee = 0.0005 ether;
@@ -94,7 +93,8 @@ contract AdvancedWatermark is Initializable, OwnableUpgradeable, PausableUpgrade
         bytes32 messageHash = keccak256(abi.encodePacked(
             assetId, format, watermarkType, contentHash, metadataHash, uri, block.timestamp
         ));
-        address signer = messageHash.toEthSignedMessageHash().recover(signature);
+        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
+        address signer = ECDSA.recover(ethSignedMessageHash, signature);
         require(signer == msg.sender, "Invalid signature");
 
         WatermarkMetadata memory metadata = WatermarkMetadata({
@@ -135,7 +135,8 @@ contract AdvancedWatermark is Initializable, OwnableUpgradeable, PausableUpgrade
         bytes32 messageHash = keccak256(abi.encodePacked(
             assetId, newOwner, newMetadataHash, block.timestamp
         ));
-        address signer = messageHash.toEthSignedMessageHash().recover(signature);
+        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
+        address signer = ECDSA.recover(ethSignedMessageHash, signature);
         require(signer == msg.sender, "Invalid transfer signature");
 
         // Create new version
@@ -162,7 +163,7 @@ contract AdvancedWatermark is Initializable, OwnableUpgradeable, PausableUpgrade
         bytes32 assetId,
         bytes32 contentHash,
         string calldata validationMethod
-    ) external payable whenNotPaused returns (bool) {
+    ) public payable whenNotPaused returns (bool) {
         require(msg.value >= validationFee, "Insufficient validation fee");
         require(authorizedValidators[msg.sender], "Not authorized validator");
 
