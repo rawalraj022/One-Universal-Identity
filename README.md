@@ -1,6 +1,6 @@
 # One Universal Identity (OUI)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue)](https://soliditylang.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
@@ -406,7 +406,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 ## 🔒 Security
 
-OUI takes security seriously. For security-related issues, please email security@oui.com instead of creating public issues.
+OUI takes security seriously. For security-related issues, please email rajkumarrawal@aidenticore.com instead of creating public issues.
 
 ### Security Features
 
@@ -418,7 +418,7 @@ OUI takes security seriously. For security-related issues, please email security
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -437,4 +437,4 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ---
 
-**Built with ❤️ by [aidenticore](https://aidenticore.com/)**
+**Built with ❤️ by [Rajkumar Rawal / AIdentiCore](https://aidenticore.com/)**

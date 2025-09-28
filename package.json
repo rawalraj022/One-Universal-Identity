@@ -48,5 +48,5 @@
     "morgan": "^1.10.0"
   },
   "author": "Tech Parivartan",
-  "license": "MIT"
+  "license": "Apache-2.0"
 }
