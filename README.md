@@ -1,7 +1,7 @@
 # One Universal Identity (OUI)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.19-blue)](https://soliditylang.org/)
+[![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue)](https://soliditylang.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
 
@@ -127,7 +127,7 @@ One Universal Identity (OUI)
 
 7. **Start the application**
    ```bash
-   # Backend API
+   # Backend API (runs on port 3000)
    npm run dev:backend
 
    # Frontend (in another terminal)
@@ -284,11 +284,17 @@ docker-compose logs -f
 
 #### Smart Contracts
 ```bash
-# Deploy to Sepolia testnet
-npx hardhat run scripts/deploy.ts --network sepolia
+# Compile contracts first
+npm run compile
+
+# Deploy to local network (for testing)
+npm run node
+
+# Deploy to testnet (Sepolia)
+npm run deploy --network sepolia
 
 # Deploy to mainnet
-npx hardhat run scripts/deploy.ts --network mainnet
+npm run deploy --network mainnet
 ```
 
 #### Backend & Frontend
@@ -298,7 +304,7 @@ npm run build
 
 # Deploy with Docker
 docker build -t oui/backend .
-docker run -p 3001:3001 oui/backend
+docker run -p 3000:3000 oui/backend
 ```
 
 #### Kubernetes
@@ -323,34 +329,17 @@ kubectl get pods -n oui-production
 ### Available Scripts
 
 ```bash
-# Development
-npm run dev:backend     # Start backend in development mode
-npm run dev:frontend    # Start frontend in development mode
-npm run dev:mobile      # Start mobile development server
+# Smart Contract Development
+npm run compile        # Compile smart contracts
+npm run test          # Run smart contract tests
+npm run deploy        # Deploy contracts to network
+npm run node          # Start local Hardhat node
+npm run gas-report    # Generate gas usage report
+npm run verify        # Verify contracts on Etherscan
 
-# Building
-npm run build          # Build all components
-npm run build:contracts # Compile smart contracts
-npm run build:backend   # Build backend application
-npm run build:frontend  # Build frontend application
-
-# Testing
-npm run test           # Run all tests
-npm run test:contracts # Test smart contracts
-npm run test:backend   # Test backend APIs
-npm run test:frontend  # Test frontend components
-npm run test:e2e       # Run end-to-end tests
-
-# Deployment
-npm run deploy:local   # Deploy to local environment
-npm run deploy:staging # Deploy to staging
-npm run deploy:prod    # Deploy to production
-
-# Utilities
-npm run lint          # Run linter
-npm run format        # Format code
-npm run docs          # Generate documentation
-npm run benchmark     # Run performance benchmarks
+# Backend Development
+npm start             # Start the backend server
+# Note: Frontend and mobile development setup coming soon
 ```
 
 ### Project Structure
@@ -443,8 +432,9 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 - **Documentation**: [docs.oui.com](https://docs.oui.com)
 - **Community Forum**: [forum.oui.com](https://forum.oui.com)
 - **Discord**: [discord.gg/oui](https://discord.gg/oui)
-- **Twitter**: [@OneUniversalID](https://twitter.com/OneUniversalID)
+- **LinkedIn**: [AIdentiCore](https://www.linkedin.com/company/aidenticore/about/?viewAsMember=true)
+- **Twitter**: [@AidentiCore](https://x.com/AidentiCore)
 
 ---
 
-**Built with ❤️ by [Tech Parivartan](https://techparivartan.com)**
+**Built with ❤️ by [aidenticore](https://aidenticore.com/)**
