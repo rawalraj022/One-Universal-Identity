@@ -319,6 +319,7 @@ kubectl get pods -n oui-production
 ## 📚 Documentation
 
 - **[Security Policy](./SECURITY.md)** - Security vulnerability reporting and best practices
+- **[Contributing Guide](./CONTRIBUTING.md)** - Development and contribution guidelines
 - **[API Documentation](./docs/api-documentation.md)** - Complete API reference
 - **[Mobile SDK Guide](./docs/mobile-sdk-guide.md)** - Mobile integration guide
 - **[Deployment Guide](./docs/deployment-guide.md)** - Production deployment instructions
@@ -388,22 +389,32 @@ npm start             # Start the backend server
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+We welcome contributions! Please see our comprehensive [Contributing Guide](./CONTRIBUTING.md) for detailed information about:
 
-### Development Workflow
+- Development setup and environment configuration
+- Project structure and coding standards
+- Testing requirements and guidelines
+- Pull request process and review workflow
+- Security considerations for contributors
+- Documentation standards
+- Community guidelines and recognition
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Quick Start
 
-### Code Standards
+1. **Fork** the repository
+2. **Clone** your fork locally
+3. **Create** a feature branch
+4. **Make** your changes
+5. **Test** thoroughly
+6. **Submit** a pull request
+
+### Key Requirements
 
 - Follow [Solidity Style Guide](https://docs.soliditylang.org/en/latest/style-guide.html)
 - Use [TypeScript ESLint](https://typescript-eslint.io/)
 - Follow [Conventional Commits](https://conventionalcommits.org/)
 - Maintain test coverage above 95%
+- Update documentation for new features
 
 ## 🔒 Security
 
@@ -438,11 +449,11 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](./LICE
 
 ## 📞 Support
 
+- **LinkedIn**: [AIdentiCore](https://www.linkedin.com/company/aidenticore/about/?viewAsMember=true)
+- **Twitter**: [@AidentiCore](https://x.com/AidentiCore)
 - **Documentation**: [docs.oui.com](https://docs.oui.com)
 - **Community Forum**: [forum.oui.com](https://forum.oui.com)
 - **Discord**: [discord.gg/oui](https://discord.gg/oui)
-- **LinkedIn**: [AIdentiCore](https://www.linkedin.com/company/aidenticore/about/?viewAsMember=true)
-- **Twitter**: [@AidentiCore](https://x.com/AidentiCore)
 
 ---
 
