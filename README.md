@@ -318,6 +318,7 @@ kubectl get pods -n oui-production
 
 ## 📚 Documentation
 
+- **[Security Policy](./SECURITY.md)** - Security vulnerability reporting and best practices
 - **[API Documentation](./docs/api-documentation.md)** - Complete API reference
 - **[Mobile SDK Guide](./docs/mobile-sdk-guide.md)** - Mobile integration guide
 - **[Deployment Guide](./docs/deployment-guide.md)** - Production deployment instructions
@@ -406,15 +407,23 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 ## 🔒 Security
 
-OUI takes security seriously. For security-related issues, please email rajkumarrawal@aidenticore.com instead of creating public issues.
+OUI takes security seriously. Please see our [Security Policy](./SECURITY.md) for detailed information about:
+
+- How to report security vulnerabilities
+- Our coordinated vulnerability disclosure process
+- Security considerations and best practices
+- Legal safe harbor for security research
 
 ### Security Features
 
 - **Smart Contract Audits**: Regular third-party security audits
-- **Bug Bounty Program**: Active bug bounty for critical vulnerabilities
 - **Multi-Signature Wallets**: Secure contract upgrades
 - **Rate Limiting**: DDoS protection and abuse prevention
 - **Encryption**: End-to-end encryption for sensitive data
+- **AI Model Security**: Adversarial training and bias detection
+- **Zero-Knowledge Proofs**: Privacy-preserving verifications
+
+For security-related issues, please email security@oui.com instead of creating public issues.
 
 ## 📄 License
 
