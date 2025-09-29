@@ -3,6 +3,7 @@
 
 import express from 'express';
 import { aiModelService } from '../ai-detection/mlModels';
+import { realMLModelService } from '../ai-detection/realMLModels';
 import type { ThreatAnalysisInput } from '../ai-detection/mlModels';
 
 const router = express.Router();
@@ -301,6 +302,9 @@ router.post('/report-false-positive', async (req, res) => {
       });
     }
 
+    // Report to real ML service for continuous learning
+    await realMLModelService.reportPrediction(userId, actualResult, modelName);
+
     // Log false positive for model retraining
     console.log('False positive reported:', {
       userId,
@@ -319,6 +323,92 @@ router.post('/report-false-positive', async (req, res) => {
   } catch (error: any) {
     res.status(500).json({
       error: 'Failed to report false positive',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * GET /ai/real-ml/metrics
+ * Get metrics for real ML models (Phase 2 feature)
+ */
+router.get('/real-ml/metrics', async (req, res) => {
+  try {
+    const metrics = realMLModelService.getModelMetrics();
+
+    res.json({
+      success: true,
+      phase: 'phase_2',
+      modelType: 'real_ml',
+      metrics: metrics instanceof Map ? Object.fromEntries(metrics) : metrics,
+      timestamp: Date.now()
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'Failed to get real ML metrics',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /ai/real-ml/train
+ * Trigger training for real ML models (Phase 2 feature)
+ */
+router.post('/real-ml/train', async (req, res) => {
+  try {
+    const { modelType, trainingData } = req.body;
+
+    if (!modelType) {
+      return res.status(400).json({
+        error: 'modelType is required'
+      });
+    }
+
+    // Train the real ML model
+    await realMLModelService.trainModel(modelType, trainingData || []);
+
+    const updatedMetrics = realMLModelService.getModelMetrics(modelType);
+
+    res.json({
+      success: true,
+      message: `Model ${modelType} training completed`,
+      modelType,
+      metrics: updatedMetrics,
+      timestamp: Date.now()
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'Real ML model training failed',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * GET /ai/phase-status
+ * Get current AI system phase and capabilities
+ */
+router.get('/phase-status', async (req, res) => {
+  try {
+    const mockMetrics = {};
+    const realMetrics = realMLModelService.getModelMetrics();
+
+    res.json({
+      currentPhase: 'phase_2',
+      aiImplementation: 'real_ml',
+      features: {
+        realMLModels: true,
+        continuousLearning: true,
+        advancedMetrics: true,
+        fallbackSupport: true
+      },
+      modelCount: realMetrics instanceof Map ? realMetrics.size : 1,
+      timestamp: Date.now()
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      error: 'Failed to get phase status',
       message: error.message
     });
   }

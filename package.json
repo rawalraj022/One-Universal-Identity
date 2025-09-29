@@ -28,6 +28,7 @@
     "@nomicfoundation/hardhat-verify": "^2.1.1",
     "@openzeppelin/contracts": "^5.0.0",
     "@openzeppelin/contracts-upgradeable": "^5.0.0",
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@testing-library/jest-dom": "^6.8.0",
     "@typechain/ethers-v6": "^0.5.0",
     "@typechain/hardhat": "^9.0.0",
@@ -46,20 +47,28 @@
     "hardhat-gas-reporter": "^1.0.9",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.5.0",
+    "react-native-crypto": "^2.2.1",
+    "react-native-randombytes": "^3.6.2",
     "sinon": "^15.1.0",
     "solidity-coverage": "^0.8.5",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
+    "axios": "^1.6.0",
+    "circomlib": "^2.0.5",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "ethers": "^6.8.1",
     "express": "^4.18.2",
+    "ffjavascript": "^0.2.60",
     "helmet": "^7.1.0",
-    "morgan": "^1.10.0"
+    "layerzero": "^1.0.0",
+    "morgan": "^1.10.0",
+    "simple-statistics": "^7.8.2",
+    "snarkjs": "^0.7.3"
   },
   "author": "Tech Parivartan",
   "license": "Apache-2.0"

@@ -1,7 +1,8 @@
 // src/networks/crossChainBridge.ts
-// Backend integration for cross-chain bridge operations
+// Backend integration for cross-chain bridge operations with LayerZero
 
 import { ethers } from 'ethers';
+import { LayerZeroBridgeService, createLayerZeroBridge, DEFAULT_LAYERZERO_CONFIGS } from './layerZeroBridge';
 
 export interface BridgeConfig {
   layerZeroEndpoint: string;
@@ -37,15 +38,35 @@ export class CrossChainBridgeService {
   private config: BridgeConfig;
   private providers: { [chainId: number]: ethers.JsonRpcProvider } = {};
   private contracts: { [chainId: number]: ethers.Contract } = {};
+  private layerZeroBridge: LayerZeroBridgeService | null = null;
 
   constructor(config: BridgeConfig) {
     this.config = config;
     this.initializeProviders();
+    this.initializeLayerZeroBridge();
   }
 
   private initializeProviders(): void {
     for (const [chainId, chainConfig] of Object.entries(this.config.supportedChains)) {
       this.providers[parseInt(chainId)] = new ethers.JsonRpcProvider(chainConfig.rpcUrl);
+    }
+  }
+
+  private initializeLayerZeroBridge(): void {
+    try {
+      // Initialize LayerZero bridge for the first supported chain
+      const chainIds = Object.keys(this.config.supportedChains).map(id => parseInt(id));
+      const primaryChainId = chainIds[0];
+
+      if (primaryChainId && DEFAULT_LAYERZERO_CONFIGS[primaryChainId as keyof typeof DEFAULT_LAYERZERO_CONFIGS]) {
+        this.layerZeroBridge = createLayerZeroBridge(
+          primaryChainId,
+          this.config.supportedChains[primaryChainId].rpcUrl
+        );
+        console.log(`LayerZero bridge initialized for chain ${primaryChainId} (Phase 2)`);
+      }
+    } catch (error) {
+      console.error('Failed to initialize LayerZero bridge:', error);
     }
   }
 
@@ -141,7 +162,7 @@ export class CrossChainBridgeService {
           requestId: txHash,
           status: 'pending',
           srcChainId,
-          dstChainId: tx.chainId || 1,
+          dstChainId: Number(tx.chainId) || 1,
           txHash,
           timestamp: Date.now()
         };
@@ -152,7 +173,7 @@ export class CrossChainBridgeService {
           requestId: txHash,
           status: 'completed',
           srcChainId,
-          dstChainId: tx.chainId || 1,
+          dstChainId: Number(tx.chainId) || 1,
           txHash,
           timestamp: Date.now()
         };
@@ -161,7 +182,7 @@ export class CrossChainBridgeService {
           requestId: txHash,
           status: 'failed',
           srcChainId,
-          dstChainId: tx.chainId || 1,
+          dstChainId: Number(tx.chainId) || 1,
           txHash,
           errorMessage: 'Transaction reverted',
           timestamp: Date.now()
