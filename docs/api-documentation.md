@@ -2,17 +2,32 @@
 
 ## Overview
 
-This document provides comprehensive API documentation for the One Universal Identity (OUI) system, including REST API endpoints, WebSocket events, and client SDK integration.
+This document provides API documentation for the One Universal Identity (OUI) system. **Note**: The current implementation uses mock services for development and testing. Many endpoints return simulated data and are not connected to live blockchain networks.
+
+> **⚠️ Development Status**: This API is in active development. Endpoints marked as "Mock Implementation" return simulated data. See [Development Roadmap](../../../README.md#development-roadmap) for production readiness timeline.
 
 ---
 
 ## Base URL
 
 ```
-Production: https://api.oui.com/v1
-Staging: https://api-staging.oui.com/v1
-Development: http://localhost:3001/api
+Development: http://localhost:3000/api
+Staging: https://api-staging.oui.com/v1 (Planned)
+Production: https://api.oui.com/v1 (Planned)
 ```
+
+## Implementation Status
+
+| Endpoint Category | Status | Notes |
+|------------------|--------|-------|
+| **Identity Management** | ✅ Working | Core endpoints implemented |
+| **DAO Governance** | ✅ Mock | Framework ready, uses simulated data |
+| **Asset Watermarking** | ✅ Mock | Framework ready, uses simulated data |
+| **AI Threat Detection** | ✅ Mock | Framework ready, uses simulated analysis |
+| **Analytics & Monitoring** | ✅ Mock | Framework ready, uses simulated data |
+| **Cross-Chain Operations** | ✅ Mock | Framework ready, uses simulated data |
+
+> **Note**: Mock implementations return realistic test data and are fully functional for development and testing purposes.
 
 ---
 
@@ -31,6 +46,8 @@ Content-Type: application/json
 ---
 
 ## Identity Management API
+
+> **✅ Fully Implemented**: These endpoints are functional and connect to the actual backend services.
 
 ### Register Identity
 
@@ -170,6 +187,8 @@ GET /identity/uvt/{tokenId}
 
 ## DAO Governance API
 
+> **✅ Mock Implementation**: These endpoints are functional but return simulated data for development purposes.
+
 ### Create Proposal
 
 Create a new DAO governance proposal.
@@ -254,6 +273,8 @@ GET /dao/proposal/{proposalId}
 
 ## Digital Asset Watermarking API
 
+> **✅ Mock Implementation**: These endpoints are functional but return simulated data for development purposes.
+
 ### Watermark Asset
 
 Apply watermark to a digital asset.
@@ -314,6 +335,8 @@ POST /watermark/verify
 ---
 
 ## AI Threat Detection API
+
+> **✅ Mock Implementation**: These endpoints are functional but return simulated analysis data for development purposes.
 
 ### Analyze Threat
 
@@ -408,6 +431,8 @@ POST /ai/detect-deepfake
 
 ## Analytics & Monitoring API
 
+> **✅ Mock Implementation**: These endpoints are functional but return simulated analytics data for development purposes.
+
 ### Get System Dashboard
 
 Retrieve comprehensive system analytics.
@@ -462,6 +487,8 @@ GET /analytics/usage
 ---
 
 ## Cross-Chain Operations API
+
+> **✅ Mock Implementation**: These endpoints are functional but return simulated bridge data for development purposes.
 
 ### Initiate Bridge Transfer
 

@@ -55,31 +55,30 @@ cp .env.example .env
 ### Basic Usage Example
 
 ```typescript
-import { createOUIClient } from '@oui/sdk';
-import { ethers } from 'ethers';
+// Note: This example shows the intended usage
+// Current implementation uses mock services for development
 
-// Initialize client
-const ouiClient = createOUIClient('https://api.oui.com/v1', 'mainnet');
+import { OUIClient } from './src/mobile-sdk/OUIClient';
 
-// Connect wallet
+// Initialize client (✅ Working)
+const ouiClient = new OUIClient({
+  apiBaseUrl: 'http://localhost:3000',
+  network: 'localhost'
+});
+
+// Connect wallet (✅ Working)
 const wallet = await ouiClient.connectWallet(window.ethereum);
 
-// Create identity
+// Create identity (✅ Working with mock backend)
 const identity = await ouiClient.createIdentity(
   `did:ethr:${wallet.address}`
 );
 
-// Issue UVT
-const uvt = await ouiClient.issueUVT('kyc-verified', 365);
+// Note: UVT and watermarking are framework-ready
+// const uvt = await ouiClient.issueUVT('kyc-verified', 365);
+// const asset = await ouiClient.watermarkAsset('asset-123', 'image', metadata);
 
-// Watermark asset
-const asset = await ouiClient.watermarkAsset(
-  'asset-123',
-  'image',
-  { creator: 'Artist Name' }
-);
-
-console.log('OUI integration complete!');
+console.log('OUI SDK integration ready!');
 ```
 
 ---
@@ -145,39 +144,31 @@ const bridgeResult = await ouiClient.initiateCrossChainTransfer(
 
 ## Smart Contract Integration
 
-### Contract Deployment
+### Contract Deployment (✅ Working)
 
 ```typescript
-import { ethers } from 'ethers';
-import { OUIIdentity__factory, UVTToken__factory } from '../typechain-types';
+import { ethers } from 'hardhat';
 
+// Deploy contracts using Hardhat (✅ Working)
 async function deployContracts() {
   const [deployer] = await ethers.getSigners();
+  console.log('Deploying contracts with:', deployer.address);
 
   // Deploy OUI Identity contract
-  const ouiIdentity = await new OUIIdentity__factory(deployer).deploy();
+  const OUIIdentity = await ethers.getContractFactory('OUIIdentity');
+  const ouiIdentity = await OUIIdentity.deploy();
   await ouiIdentity.waitForDeployment();
+  console.log('OUIIdentity deployed to:', await ouiIdentity.getAddress());
 
-  // Deploy UVT Token contract
-  const uvtToken = await new UVTToken__factory(deployer).deploy();
-  await uvtToken.waitForDeployment();
-
-  // Initialize contracts
-  await uvtToken.initialize(
-    deployer.address, // admin
-    deployer.address, // minter
-    deployer.address, // pauser
-    deployer.address, // upgrader
-    ethers.parseEther('0.001'), // minting fee
-    ethers.parseEther('0.0005'), // verification reward
-    500 // staking reward rate (5%)
-  );
+  // Note: UVTToken deployment is framework-ready
+  // Additional contracts (DAO, Watermarking) are planned for Phase 2
 
   return {
-    ouiIdentity: await ouiIdentity.getAddress(),
-    uvtToken: await uvtToken.getAddress()
+    ouiIdentity: await ouiIdentity.getAddress()
   };
 }
+
+// Usage: npm run deploy --network localhost
 ```
 
 ### Identity Management

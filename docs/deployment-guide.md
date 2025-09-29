@@ -2,7 +2,9 @@
 
 ## Overview
 
-This guide provides comprehensive instructions for deploying the One Universal Identity (OUI) system across various environments, from local development to production-scale deployments.
+This guide provides deployment instructions for the One Universal Identity (OUI) system. **Note**: Current deployment focuses on development and testing environments. Production deployment will require additional infrastructure setup.
+
+> **⚠️ Development Status**: This deployment guide covers current development setup. Production deployment instructions will be updated as components mature. See [Development Roadmap](../../../README.md#development-roadmap) for production readiness timeline.
 
 ---
 
@@ -19,6 +21,19 @@ This guide provides comprehensive instructions for deploying the One Universal I
 9. [CI/CD Pipeline](#ci-cd-pipeline)
 10. [Monitoring & Scaling](#monitoring--scaling)
 11. [Troubleshooting](#troubleshooting)
+
+## Deployment Status
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| **Smart Contract Deployment** | ✅ Working | Core contracts deploy and function correctly |
+| **Backend API** | ✅ Working | Express.js server with mock services |
+| **Frontend Framework** | ✅ Working | React app with wallet integration |
+| **Mobile SDK** | ✅ Working | Cross-platform SDK ready for integration |
+| **Database Integration** | 🔄 In Development | Currently uses in-memory storage |
+| **Production Infrastructure** | 🔄 Planned | Docker/Kubernetes setup in progress |
+| **Monitoring Stack** | 🔄 Planned | Prometheus/Grafana implementation planned |
+| **CI/CD Pipeline** | 🔄 Planned | GitHub Actions workflow in development |
 
 ---
 
@@ -72,14 +87,8 @@ cd one-universal-identity
 # Install all dependencies
 npm install
 
-# Install smart contract dependencies
-npm run install:contracts
-
-# Install backend dependencies
-npm run install:backend
-
-# Install frontend dependencies
-npm run install:frontend
+# Note: Smart contracts, backend, and frontend are all included in main package.json
+# No separate install commands needed
 ```
 
 ### 3. Environment Configuration
@@ -87,26 +96,28 @@ npm run install:frontend
 Create environment files:
 
 ```bash
-# .env.local
+# .env (main environment file)
 NODE_ENV=development
-PORT=3001
+PORT=3000
 
-# Blockchain
+# Blockchain (for Hardhat local development)
 ETHEREUM_RPC_URL=http://127.0.0.1:8545
 PRIVATE_KEY=your_private_key_here
 
-# Database
-DATABASE_URL=postgresql://localhost:5432/oui_dev
-REDIS_URL=redis://localhost:6379
+# Database (currently uses in-memory storage)
+# DATABASE_URL=postgresql://localhost:5432/oui_dev
+# REDIS_URL=redis://localhost:6379
 
-# Security
-JWT_SECRET=your_jwt_secret_here
-API_ENCRYPTION_KEY=your_encryption_key_here
+# Security (for production)
+# JWT_SECRET=your_jwt_secret_here
+# API_ENCRYPTION_KEY=your_encryption_key_here
 
-# External APIs
-INFURA_PROJECT_ID=your_infura_project_id
-ETHERSCAN_API_KEY=your_etherscan_api_key
+# External APIs (for production deployment)
+# INFURA_PROJECT_ID=your_infura_project_id
+# ETHERSCAN_API_KEY=your_etherscan_api_key
 ```
+
+> **Note**: Database configuration is prepared for PostgreSQL/MongoDB integration. Currently uses in-memory storage for development.
 
 ### 4. Start Local Blockchain
 
@@ -121,28 +132,31 @@ npx hardhat run scripts/deploy.ts --network localhost
 ### 5. Start Services
 
 ```bash
-# Start backend API
-npm run dev:backend
+# Start backend API (port 3000)
+npm start
 
-# Start frontend (in another terminal)
-npm run dev:frontend
+# Note: Frontend development framework is ready for integration
+# Mobile SDK is fully functional for development
 
 # Start database and Redis (if using Docker)
-docker-compose up -d postgres redis
+# Note: Currently uses in-memory storage, Docker setup ready for production
+# docker-compose up -d mongodb redis
 ```
 
 ### 6. Verify Installation
 
 ```bash
-# Check all services are running
-curl http://localhost:3001/health
-curl http://localhost:3000
+# Check backend service is running
+curl http://localhost:3000/health
 
-# Run tests
-npm test
+# Run smart contract tests
+npm run test
 
-# Check smart contracts
+# Compile and check smart contracts
+npm run compile
 npx hardhat test
+
+# Note: Full system integration testing framework is in development
 ```
 
 ---
