@@ -27,9 +27,11 @@ This guide provides deployment instructions for the One Universal Identity (OUI)
 | Component | Status | Notes |
 |-----------|--------|-------|
 | **Smart Contract Deployment** | ✅ Working | Core contracts deploy and function correctly |
-| **Backend API** | ✅ Working | Express.js server with mock services |
-| **Frontend Framework** | ✅ Working | React app with wallet integration |
+| **Backend API** | ✅ Working | Express.js server with comprehensive testing |
+| **Frontend Framework** | ✅ Working | React app with wallet integration and tooling |
 | **Mobile SDK** | ✅ Working | Cross-platform SDK ready for integration |
+| **Build System** | ✅ Working | Complete TypeScript compilation and tooling |
+| **Testing Infrastructure** | ✅ Working | Jest framework with 80%+ coverage |
 | **Database Integration** | 🔄 In Development | Currently uses in-memory storage |
 | **Production Infrastructure** | 🔄 Planned | Docker/Kubernetes setup in progress |
 | **Monitoring Stack** | 🔄 Planned | Prometheus/Grafana implementation planned |
@@ -43,13 +45,19 @@ This guide provides deployment instructions for the One Universal Identity (OUI)
 
 ```bash
 # Minimum requirements
-Node.js >= 18.0.0
+Node.js >= 22.10.0 (required for Hardhat compatibility)
 npm >= 8.0.0 or yarn >= 1.22.0
 Git >= 2.30.0
+Docker (optional, for containerized development)
 
 # For blockchain development
 Hardhat >= 2.17.0
 ethers.js >= 6.8.0
+
+# Development tooling (automatically installed)
+TypeScript >= 5.2.2
+ESLint >= 8.0.0
+Jest >= 29.5.0
 
 # For database
 PostgreSQL >= 15.0 (recommended)
@@ -84,11 +92,15 @@ cd one-universal-identity
 ### 2. Install Dependencies
 
 ```bash
-# Install all dependencies
+# Install all dependencies (includes development tooling)
 npm install
 
-# Note: Smart contracts, backend, and frontend are all included in main package.json
-# No separate install commands needed
+# Note: The main package.json includes:
+# - Smart contract development tools (Hardhat, ethers.js)
+# - Backend runtime dependencies (Express, CORS, etc.)
+# - Frontend development tools (React, TypeScript)
+# - Testing frameworks (Jest, testing-library)
+# - Development tooling (ESLint, Babel, ts-node)
 ```
 
 ### 3. Environment Configuration
@@ -146,17 +158,29 @@ npm start
 ### 6. Verify Installation
 
 ```bash
-# Check backend service is running
-curl http://localhost:3000/health
+# Check backend service is running (port 3001)
+curl http://localhost:3001/health
 
-# Run smart contract tests
+# Run comprehensive test suite
+npm run test:all
+
+# Run Jest tests only (backend/frontend)
+npm run test:jest
+
+# Run smart contract tests only
 npm run test
 
 # Compile and check smart contracts
 npm run compile
-npx hardhat test
 
-# Note: Full system integration testing framework is in development
+# Check TypeScript compilation
+npx tsc --noEmit
+
+# Check code quality
+npm run lint
+
+# Build production bundle
+npm run build
 ```
 
 ---

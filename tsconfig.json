@@ -9,18 +9,16 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "outDir": "./dist"
   },
   "include": [
     "src/**/*",
     "hardhat.config.ts",
-    "scripts/**/*"
+    "scripts/**/*",
+    "test/**/*"
   ],
   "exclude": [
     "node_modules",
-    "dist",
-    "test",
-    "src/frontend"
+    "dist"
   ]
 }

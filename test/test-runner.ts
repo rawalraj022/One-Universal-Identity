@@ -142,7 +142,7 @@ class OUITestRunner {
 
     const benchmarker = new OUIBenchmarker(
       process.env.ETHEREUM_RPC_URL || 'http://127.0.0.1:8545',
-      process.env.PRIVATE_KEY || ethers.ZeroHash
+      process.env.PRIVATE_KEY || '0x0000000000000000000000000000000000000000000000000000000000000000'
     );
 
     const results = {
