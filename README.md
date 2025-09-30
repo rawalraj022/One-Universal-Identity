@@ -1,5 +1,9 @@
 # One Universal Identity (OUI)
 
+<div align="center">
+  <img src="assets/images/logo.png" alt="One Universal Identity Logo" width="200" height="200">
+</div>
+
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue)](https://soliditylang.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)](https://www.typescriptlang.org/)
