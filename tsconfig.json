@@ -9,7 +9,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "declaration": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*",
